@@ -1,0 +1,13 @@
+{% extends 'geonode-mapstore-client/_geonode_config.html' %}
+{% block override_local_config %}
+<link rel="icon" href="/static/img/favicon.ico"/>
+<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
+
+
+<script>
+    window.__GEONODE_CONFIG__.overrideLocalConfig = function(localConfig, _) {
+        // Here the localConfig can be overridden and/or extended
+        return localConfig;
+    };
+</script>
+{% endblock %}
