@@ -62,6 +62,7 @@ logger = logging.getLogger("importer")
 
 @override_settings(
     DEBUG=True,
+    DEBUG_STATIC=True,
     ALLOWED_HOSTS=["*"],
     SITEURL=LIVE_SERVER_URL,
     CSRF_COOKIE_SECURE=False,
