@@ -38,6 +38,16 @@ from kombu.serialization import register
 
 from . import serializer
 
+from django_auth_ldap import config as ldap_config
+from geonode_ldap.config import GeonodeNestedGroupOfNamesType
+import ldap
+
+# enable logging
+import logging
+logger = logging.getLogger('django_auth_ldap')
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.DEBUG)
+
 SILENCED_SYSTEM_CHECKS = [
     "1_8.W001",
     "fields.W340",
@@ -865,8 +875,41 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "guardian.backends.ObjectPermissionBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
+     
+)
+AUTHENTICATION_BACKENDS += (
+    'geonode_ldap.backend.GeonodeLdapBackend',
 )
 
+# django_auth_ldap configuration
+AUTH_LDAP_SERVER_URI = os.getenv("LDAP_SERVER_URL")
+AUTH_LDAP_BIND_AS_AUTHENTICATING_USER = True
+AUTH_LDAP_USER_SEARCH = ldap_config.LDAPSearch(
+    os.getenv("LDAP_USER_SEARCH_DN"),
+    ldap.SCOPE_SUBTREE,
+    os.getenv("LDAP_USER_SEARCH_FILTERSTR")
+)
+
+AUTH_LDAP_MIRROR_GROUPS = strtobool(os.getenv("LDAP_MIRROR_GROUPS", 'False'))
+
+AUTH_LDAP_GROUP_TYPE = GeonodeNestedGroupOfNamesType()
+
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "cn",
+    "last_name": "sn",
+    "email": "mail"
+}
+
+AUTH_LDAP_FIND_GROUP_PERMS = True
+AUTH_LDAP_MIRROR_GROUPS_EXCEPT = [
+    "test_group"
+]
+
+# these are not needed by django_auth_ldap - we use them to find and match
+# GroupProfiles and GroupCategories
+GEONODE_LDAP_GROUP_NAME_ATTRIBUTE = os.getenv("LDAP_GROUP_NAME_ATTRIBUTE", default="cn")
+GEONODE_LDAP_GROUP_PROFILE_FILTERSTR = os.getenv("LDAP_GROUP_SEARCH_FILTERSTR", default='(ou=research group)')
+GEONODE_LDAP_GROUP_PROFILE_MEMBER_ATTR = os.getenv("LDAP_GROUP_PROFILE_MEMBER_ATTR", default='member')
 if "announcements" in INSTALLED_APPS:
     AUTHENTICATION_BACKENDS += ("announcements.auth_backends.AnnouncementPermissionsBackend",)
 

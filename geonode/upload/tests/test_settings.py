@@ -44,7 +44,9 @@ if not SITEURL.endswith("/"):
 ALLOWED_HOSTS = ["localhost", "geonode", "django", "geonode.example.com"]
 
 AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend", "guardian.backends.ObjectPermissionBackend")
-
+AUTHENTICATION_BACKENDS += (
+    'geonode_ldap.backend.GeonodeLdapBackend',
+)
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"
 
